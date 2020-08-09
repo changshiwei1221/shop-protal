@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <link rel="stylesheet" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <link rel="icon" href="/js/shop/assets/img/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/js/shop/css/webbase.css" />
+    <link rel="stylesheet" type="text/css" href="/js/shop/css/pages-JD-index.css" />
+    <link rel="stylesheet" type="text/css" href="/js/shop/css/widget-jquery.autocomplete.css" />
+    <link rel="stylesheet" type="text/css" href="/js/shop/css/widget-cartPanelView.css" />
+    <title>登录页面</title>
+
+</head>
+<body>
+
+
+<div>
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">帐户密码登录</a></li>
+        <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">免密登录</a></li>
+    </ul>
+
+    <!-- Tab panes -->
+   <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="home">
+            <form class="form-horizontal" id="table">
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">用户名</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" id="memberName"   placeholder="请输入用户名..">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">密码</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" id="password"   placeholder="请输入密码..">
+                    </div>
+                </div>
+
+                <div align="center">
+                    <button class="btn btn-info" type="button" onclick="login()"><i class="glyphicon glyphicon-search"></i>登录</button>
+                    <button class="btn btn-default" type="reset"><i class="glyphicon glyphicon-refresh"></i>重置</button>
+                </div>
+            </form>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="profile">
+            <form class="form-horizontal" id="yzphone">
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">手机号</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" id="phone"   placeholder="请输入手机号..">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">验证码</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" id="code"   placeholder="请输入验证码..">
+                    </div>
+                    <div class="col-sm-2">
+                        <input class="btn btn-info" type="button" onclick="postCode()" id="postCodes" value="发送验证码"/>
+                    </div>
+                </div>
+
+                <div align="center">
+                    <button class="btn btn-info" type="button" onclick="loginPhone()"><i class="glyphicon glyphicon-search"></i>登录</button>
+                    <button class="btn btn-default" type="reset"><i class="glyphicon glyphicon-refresh"></i>重置</button>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+</body>
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/key.js"></script>
+<script type="text/javascript" src="js/jsencrypt.min.js"></script>
+
+
+<script>
+
+
+   function login() {
+       var member={};
+       var encrypt=new JSEncrypt();
+       encrypt.setPublicKey(pubulicKey)
+      var memberName= encrypt.encrypt($("#memberName").val());
+      var password=  encrypt.encrypt( $("#password").val());
+       member.memberName=memberName;
+       member.password=password;
+
+       $.ajax({
+           type:'post',
+           url:'http://localhost:8081/members/login',
+           data:member,
+           success:function (result) {
+               if(result.code==200){
+                   //将信息存入cookie
+                   $.cookie("token",result.data);
+                    location.href="/"
+               }
+           },
+
+       })
+
+   }
+
+   function loginPhone() {
+      var vip={};
+       var phone= $("#phone").val();
+       var code=  $("#code").val();
+       vip.vipPhone=phone;
+       vip.vipCode=code;
+       $.ajax({
+           type:'post',
+           url:'http://localhost:9999/vip/login2',
+           data:vip,
+           success:function (result) {
+               if(result.code==200){
+                   //将信息存入cookie
+                   $.cookie("fh_csw",result.data);
+                   location.href="/"
+               }
+           },
+
+       })
+
+   }
+
+
+   function postCode() {
+       var vipPhone= $("#phone").val();
+      /* code.attr("disabled","disabled");
+       setTimeout(function(){
+           code.css("opacity","0.8");
+       },1000)
+       var time = 60;
+       var set=setInterval(function(){
+           code.val("("+--time+")秒后重新获取");
+       }, 1000);
+       setTimeout(function(){
+           code.attr("disabled",false).val("重新获取验证码");
+           clearInterval(set);
+       }, 60000);*/
+       $.ajax({
+           type:'get',
+           url:'http://localhost:8081/sms/'+vipPhone,
+           success:function (result) {
+               if (result.code==200){
+
+                   alert("成功")
+
+
+               }else {
+                   alert("失败")
+               }
+
+           }
+       })
+
+   }
+   
+
+</script>
+</html>

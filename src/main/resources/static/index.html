@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <link rel="stylesheet" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <link rel="icon" href="/js/shop/assets/img/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/js/shop/css/webbase.css" />
+    <link rel="stylesheet" type="text/css" href="/js/shop/css/pages-JD-index.css" />
+    <link rel="stylesheet" type="text/css" href="/js/shop/css/widget-jquery.autocomplete.css" />
+    <link rel="stylesheet" type="text/css" href="/js/shop/css/widget-cartPanelView.css" />
+    <link rel="stylesheet" href="/js/DataTables-1.10.18/css/dataTables.bootstrap.min.css" >
+    <link rel="stylesheet" href="/js/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css" >
+    <link rel="stylesheet" href="/js/fileinput5/css/fileinput.css" >
+    <link rel="stylesheet" href="/js/bootstrap-select/css/bootstrap-select.css" >
+    <link rel="stylesheet" href="/js/bootstrapvalidator-master/css/bootstrapValidator.min.css" >
+    <title>商城首页</title>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div>
+        <a class="navbar-brand" href="/">飞狐电商</a>
+    </div>
+    <div>
+        <ul class="nav navbar-nav navbar-right" id="userinfoDiv">
+            <li id="memberInfo"><a href="/login.html">登录</a></li>
+            <li id="reg"><a href="/register.html">注册</a></li>
+            <li><a href="cart.html">购物车<span id="cartCount">(0)</span></a></li>
+        </ul>
+    </div>
+</nav>
+<div id="nav-bottom">
+    <!--顶部-->
+    <div class="nav-top">
+        <!--头部-->
+        <div class="header">
+            <div class="py-container">
+                <div class="yui3-g NavList">
+                    <div class="yui3-u Left all-sort">
+                        <h4>全部商品分类</h4>
+                    </div>
+                    <div class="yui3-u Center navArea">
+                        <ul class="nav">
+                            <li class="f-item">服装城</li>
+                            <li class="f-item">美妆馆</li>
+                            <li class="f-item">品优超市</li>
+                            <li class="f-item">全球购</li>
+                            <li class="f-item">闪购</li>
+                            <li class="f-item">团购</li>
+                            <li class="f-item">有趣</li>
+                        </ul>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--列表-->
+<div class="sort">
+    <div class="py-container">
+        <div class="yui3-g SortList ">
+            <div class="yui3-u Left all-sort-list">
+                <div class="all-sort-list2" id="classifyListDiv">
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">热销商品</div>
+                <div class="panel-body" id="productDiv">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+
+    </div>
+</div>
+
+<textarea id="productText" style="display: none">
+                     <div class="col-md-4">
+                                <div class="thumbnail">
+                                    <img src="###img###" alt="..." width="50%">
+                                    <div class="caption">
+                                        商品名:<h3>###productName###</h3>
+                                        商品价格:<p>###price###</p>
+                                        商品库存:<p>###stock###</p>
+                                        <p><a href="#" class="btn btn-primary" role="button" onclick="addCart('###id###',1)">购买</a> <a href="#" class="btn btn-default" role="button" onclick="addCart('###id###',1)">加入购物车</a></p>
+                                    </div>
+                                </div>
+                     </div>
+</textarea>
+</body>
+<script type="text/javascript" src="/js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.min.js"></script>
+<script type="text/javascript" src="/js/DataTables-1.10.18/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="/js/DataTables-1.10.18/js/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/bootbox/bootbox.min.js"></script>
+<script type="text/javascript" src="/js/bootbox/bootbox.locales.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap-datetimepicker/js/moment-with-locales.js"></script>
+<script type="text/javascript" src="/js/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="/js/fileinput5/js/fileinput.js"></script>
+<script type="text/javascript" src="/js/bootstrap-select/js/bootstrap-select.min.js"></script>
+<script type="text/javascript" src="/js/bootstrapvalidator-master/js/bootstrapValidator.min.js"></script>
+
+<script>
+
+    $(function () {
+        memberInfo()
+        initClassIfyList()
+        queryHotList()
+        cartItemCount()
+    })
+
+    var fh_token="";
+    $.ajaxSetup({
+        beforeSend:function(xhr){
+            fh_token= $.cookie("token")
+            xhr.setRequestHeader("token",fh_token);
+        },
+
+    })
+
+
+    function memberInfo() {
+        fh_token= $.cookie("token")
+        if(fh_token){
+            $.ajax({
+                type:'get',
+                url:'http://localhost:8081/members/memberInfo',
+                success:function (result) {
+                    if (result.code==200){
+                        $("#memberInfo").html('<a href="#">欢迎'+result.data.memberName+'登录</a>')
+                        $("#reg").html('<a href="#" onclick="logOut()">退出</a>')
+                    }
+                }
+            })
+        }
+    }
+
+    function cartItemCount() {
+        fh_token= $.cookie("token")
+        if(fh_token){
+            $.ajax({
+                type:'get',
+                url:'http://localhost:8081/carts/cartItemCount',
+                success:function (result) {
+                    if (result.code==200){
+                       $("#cartCount").html("("+result.data+")")
+                    }
+                }
+            })
+        }
+    }
+
+    function logOut() {
+        fh_token= $.cookie("token")
+        if(fh_token){
+            if (fh_token){
+                $.ajax({
+                    type:'get',
+                    url:'http://localhost:8081/members/logOut',
+                    success:function (result) {
+                        if (result.code==200){
+                            $.removeCookie("token")
+                            location.href="/"
+                        }
+                    }
+                })
+            }
+        }
+
+    }
+function queryHotList() {
+    fh_token= $.cookie("token")
+    if (fh_token){
+            $.ajax({
+                type:'get',
+                url:'http://localhost:8081/products/queryHotList',
+                success:function (result) {
+                    if (result.code==200){
+                        var arr=result.data;
+                        for (let product of arr) {
+                            var a= $("#productText").val().replace(/###productName###/g,product.productName)
+                                .replace(/###price###/g,product.price)
+                                .replace(/###stock###/g,product.stock)
+                                .replace(/###img###/g,product.mainImagePath)
+                                .replace(/###id###/g,product.id)
+                            $("#productDiv").append(a)
+                        }
+
+                    }
+                }
+            })
+        }
+}
+
+
+function addCart(id,num) {
+    fh_token= $.cookie("token")
+    if (fh_token){
+        $.ajax({
+            type:'post',
+            url:'http://localhost:8081/carts/cart',
+            data:{"productId":id,"num":num},
+            success:function (result) {
+                if (result.code==200){
+                alert("成功")
+                    cartItemCount()
+                }
+            }
+        })
+    }
+}
+    function initCss() {
+        $('.all-sort-list2 > .item').hover(function() {
+            //父类分类列表容器的高度
+
+            $(this).addClass('hover');
+            $(this).children('.item-list').css('display', 'block');
+        }, function() {
+            $(this).removeClass('hover');
+            $(this).children('.item-list').css('display', 'none');
+        });
+
+        $('.item > .item-list > .close').click(function() {
+            $(this).parent().parent().removeClass('hover');
+            $(this).parent().hide();
+        });
+    }
+
+    var v_classIfyArr;
+    var v_html = "";
+    function initClassIfyList() {
+        $.ajax({
+            type:"get",
+            url:"http://localhost:8081/classifys/queryClassIfylist",
+            success:function (result) {
+                if (result.code == 200) {
+                    v_classIfyArr = result.data;
+                    console.log(v_classIfyArr);
+                    buildClassIfy1(1);
+                    console.log(v_html);
+                    $("#classifyListDiv").html(v_html);
+                    initCss();
+                }
+            }
+        })
+    }
+
+    function buildClassIfy1(id) {
+        var classIfy1Arr = getChilds(id);
+        for (var i = 0; i < classIfy1Arr.length; i++) {
+            v_html += '<div class="item">';
+            v_html += '<h3><a href="">'+classIfy1Arr[i].classifyName+'</a></h3>';
+            v_html += '<div class="item-list clearfix">';
+            v_html += '<div class="subitem">';
+            buildClassIfy2(classIfy1Arr[i].id);
+            v_html += '</div>';
+            v_html += '</div>';
+            v_html += '</div>';
+        }
+    }
+
+    function buildClassIfy2(id) {
+        var classIfy2Arr = getChilds(id);
+        for (var i = 0; i < classIfy2Arr.length; i++) {
+            v_html += '<dl class="fore'+(i+1)+'">';
+            v_html += '<dt><a href="">'+classIfy2Arr[i].classifyName+'</a></dt>';
+            v_html += '<dd>';
+            buildClassIfy3(classIfy2Arr[i].id);
+            v_html += '</dd>';
+            v_html += '</dl>';
+        }
+    }
+
+    function buildClassIfy3(id) {
+        var classIfy3Arr = getChilds(id);
+        for (var i = 0; i < classIfy3Arr.length; i++) {
+            v_html += '<em><a href="">'+classIfy3Arr[i].classifyName+'</a></em>';
+        }
+    }
+
+    function getChilds(id) {
+        var v_childs = [];
+        for (var i = 0; i < v_classIfyArr.length; i++) {
+            if (v_classIfyArr[i].parentid == id) {
+                v_childs.push(v_classIfyArr[i]);
+            }
+        }
+        return v_childs;
+    }
+
+</script>
+</html>

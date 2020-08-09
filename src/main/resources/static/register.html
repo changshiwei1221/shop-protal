@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <link rel="stylesheet" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <link rel="icon" href="/js/shop/assets/img/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/js/shop/css/webbase.css" />
+    <link rel="stylesheet" type="text/css" href="/js/shop/css/pages-JD-index.css" />
+    <link rel="stylesheet" type="text/css" href="/js/shop/css/widget-jquery.autocomplete.css" />
+    <link rel="stylesheet" type="text/css" href="/js/shop/css/widget-cartPanelView.css" />
+    <link rel="stylesheet" href="/js/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css" >
+    <title>会员注册页面</title>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-info">
+                <div class="panel-heading">会员注册</div>
+                <div class="panel-body">
+                    <form class="form-horizontal" id="vipFrom">
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">用户名</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" id="t_memberName"  placeholder="请输入用户名.."onblur="queryMemberName()" >
+                            </div>
+                            <div id="memberNameDiv"></div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">密码</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" id="t_password"  placeholder="请输入密码.." >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">手机号</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" id="t_phone"  placeholder="请输入手机号码.."  onblur="queryPhone()" >
+                            </div>
+                            <div id="phoneDiv"></div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">真实姓名</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" id="t_realName"  placeholder="请输入真实姓名.." >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">邮箱</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" id="t_mail"  placeholder="请输入邮箱.." onblur="queryMail()">
+                            </div>
+                            <div id="mailDiv"></div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">出生日期</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control"  id="t_birthday"  name="birthdayTime" placeholder="请输入出生日期..">
+                            </div>
+                        </div>
+                        <div class="form-group" id="t_memberArea">
+                            <label  class="col-sm-2 control-label">地区</label>
+
+                        </div>
+                        <div align="center">
+                            <button class="btn btn-info" type="button" onclick="addMember()" id="submit"><i class="glyphicon glyphicon-search" ></i>注册会员</button>
+                            <button class="btn btn-default" type="reset"><i class="glyphicon glyphicon-refresh"></i>重置</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="js/key.js"></script>
+<script type="text/javascript" src="js/jsencrypt.min.js"></script>
+
+<script>
+
+    $(function () {
+        queryArea(1)
+    })
+
+
+function addMember() {
+     var member={};
+    var encrypt=new JSEncrypt();
+    encrypt.setPublicKey(pubulicKey)
+    var memberName  = encrypt.encrypt($("#t_memberName").val());
+    var password    = encrypt.encrypt($("#t_password").val());
+    var realName= $("#t_realName").val();
+    var birthday= $("#t_birthday").val();
+    var mail= $("#t_mail").val();
+    var phone= $("#t_phone").val();
+    var  shengId=$($("select[name='areaSelect']")[0]).val();
+    var  shiId=$($("select[name='areaSelect']")[1]).val();
+    var  xianId=$($("select[name='areaSelect']")[2]).val();
+
+    var shengName=$($("select[name='areaSelect']")[0]).find("option:selected").data("area-name");
+    var shiName=$($("select[name='areaSelect']")[1]).find("option:selected").data("area-name");
+    var xianName=$($("select[name='areaSelect']")[2]).find("option:selected").data("area-name");
+
+    if(memberName==null||memberName==""){
+        alert("用户名不能为空！")
+        return;
+    }
+    if(password==null||password==""){
+        alert("密码不能为空！")
+        return;
+    }
+    if(realName==null||realName==""){
+        alert("真实姓名不能为空！")
+        return;
+    }
+    if(birthday==null||birthday==""){
+        alert("出生日期不能为空！")
+        return;
+    }
+    if(mail==null||mail==""){
+        alert("邮箱不能为空！")
+        return;
+    }
+    if(phone==null||phone==""){
+        alert("电话号码不能为空！")
+        return;
+    }
+
+
+    member.memberName=memberName;
+    member.password=password;
+    member.realName=realName;
+    member.birthday=birthday;
+    member.mail=mail;
+    member.phone=phone;
+    member.shengId=shengId;
+    member.shiId=shiId;
+    member.xianId=xianId;
+    member.areaName=shengName+shiName+xianName
+
+
+    $.ajax({
+        type:'post',
+        url:'http://localhost:8081/members/add',
+        data:member,
+        success:function (result) {
+            if (result.code==200){
+                alert('注册成功请重新登录')
+                location.href="/login.html"
+            }else {
+                alert(result.msg)
+            }
+
+        }
+    })
+
+}
+
+
+function queryMemberName() {
+    var memberName   = $("#t_memberName").val();
+    $.ajax({
+        type:'get',
+        url:'http://localhost:8081/members/query?memberName='+memberName,
+        success:function (result) {
+            if (result.code==200){
+                if(result.data!=null){
+                    $("#submit").attr('disabled',true);
+                    $("#memberNameDiv").html("<h3><font color='red'>用户名已存在</font></h3>")
+                }else{
+                    $("#memberNameDiv").html(" ")
+                    $("#submit").attr('disabled',false);
+                }
+            }else {
+                alert(result.msg)
+                $("#submit").attr('disabled',true);
+            }
+        }
+    })
+}
+
+function queryPhone() {
+    var phone= $("#t_phone").val();
+    $.ajax({
+        type:'get',
+        url:'http://localhost:8081/members/query?phone='+phone,
+        success:function (result) {
+            if (result.code==200){
+                if(result.data!=null){
+                    $("#submit").attr('disabled',true);
+                    $("#phoneDiv").html("<h3><font color='red'>电话号码已存在</font></h3>")
+                }else{
+                    $("#phoneDiv").html(" ")
+                    $("#submit").attr('disabled',false);
+                }
+            }else {
+                alert(result.msg)
+                $("#submit").attr('disabled',true);
+            }
+        }
+    })
+}
+function queryMail() {
+    var mail= $("#t_mail").val();
+    $.ajax({
+        type:'get',
+        url:'http://localhost:8081/members/query?mail='+mail,
+        success:function (result) {
+            if (result.code==200){
+                if(result.data!=null){
+                    $("#submit").attr('disabled',true);
+                    $("#mailDiv").html("<h3><font color='red'>邮箱已存在</font></h3>")
+                }else{
+                    $("#mailDiv").html(" ")
+                    $("#submit").attr('disabled',false);
+                }
+            }else {
+                alert(result.msg)
+                $("#submit").attr('disabled',true);
+            }
+        }
+    })
+}
+
+
+    function queryArea(id,obj) {
+
+        //删除当前select父级的DIV 的同级DIV
+        if(obj){
+            $(obj).parent().nextAll().remove();
+        }
+        $.ajax({
+            //配置求路径
+            url: 'http://localhost:8081/areas/'+id,
+            //发送请求方式默认为get
+            type: 'get',
+            //期望的返回值类型配置有text和json,
+            dataType: "json",
+            //{}发送请求是传递的参数，写法（{“name”：name,"pwd":pwd}）
+            data:{"id": id},
+            success: function (result) {
+                var data=result.data;
+                console.log(result)
+                var str="";
+                if (result.code == "200") {
+                    //判断父级下是否还存在子级 如果不存在就不进行拼接
+                    if(data.length==0){
+                        return;
+                    }
+                    str+="<div class='col-sm-3'>"
+                    str+="<select   class='form-control' name='areaSelect'  onchange=\"queryArea(this.value,this)\">"
+                    str+="<option value='-1'>==请选择==</option>";
+                    for(var i=0;i<data.length;i++){
+                        str+="<option value='"+data[i].id+"' data-area-name='"+data[i].areaName+"'>"+data[i].areaName+"</option> ";
+                    }
+                    str+="</select>"
+                    str+="</div>"
+
+                    $("#t_memberArea").append(str);
+                }
+            },
+
+        });
+    }
+</script>
+</html>
